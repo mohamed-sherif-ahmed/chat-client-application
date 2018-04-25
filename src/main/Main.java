@@ -8,7 +8,7 @@ public class Main {
     public static Scanner sc = new Scanner(System.in);
     public static void main(String[] args) {
         try{
-            Socket socket = new Socket("localhost", 50000);
+            Socket socket = new Socket("192.168.1.2", 50000);
 
 //            OutputStream outputStream = socket.getOutputStream();
 //            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
@@ -37,9 +37,11 @@ public class Main {
 
                     int id = sc.nextInt();
                     String[] data = users[id].split(",");
-                    String ss = "TEETEAA\n";
+                    System.out.println("Enter Message");
+                    String ss = sc.nextLine();
+                    ss += "\n";
                     System.out.println(data[1]);
-                    Socket tempS = new Socket("127.0.0.1", Integer.parseInt(data[1]));
+                    Socket tempS = new Socket("192.168.1.3", Integer.parseInt(data[1]));
                     BufferedWriter tempOut = new BufferedWriter(new OutputStreamWriter(tempS.getOutputStream()));
                     tempOut.write(ss);
                     tempOut.flush();
