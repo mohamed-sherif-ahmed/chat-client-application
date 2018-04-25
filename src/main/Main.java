@@ -38,8 +38,8 @@ public class Main {
                     int id = sc.nextInt();
                     String[] data = users[id].split(",");
                     System.out.println("Enter Message");
-                    String ss = sc.nextLine();
-                    ss += "\n";
+                    String ss = "Hellowowowowo\n";
+//                    ss += "\n";
                     System.out.println(data[1]);
                     Socket tempS = new Socket("192.168.1.3", Integer.parseInt(data[1]));
                     BufferedWriter tempOut = new BufferedWriter(new OutputStreamWriter(tempS.getOutputStream()));
