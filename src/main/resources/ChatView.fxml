@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextArea?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="625.0" prefWidth="627.0" stylesheets="@/mainStyle.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ChatView">
+   <children>
+      <JFXTextField fx:id="serverIP" layoutX="48.0" layoutY="45.0" promptText="Sever IP" unFocusColor="#4d4444" />
+      <JFXButton layoutX="48.0" layoutY="99.0" onAction="#login" text="Log In" />
+      <JFXTextArea fx:id="userDisplay" layoutX="23.0" layoutY="161.0" prefHeight="210.0" prefWidth="172.0" style="-fx-border-width: 5px;" />
+      <JFXTextField fx:id="userConnect" layoutX="35.0" layoutY="440.0" promptText="IP " />
+      <JFXButton layoutX="59.0" layoutY="494.0" onAction="#connect" text="Start Chat" />
+      <JFXTextArea fx:id="screen" layoutX="314.0" layoutY="99.0" prefHeight="285.0" prefWidth="254.0" />
+      <JFXTextArea fx:id="type" layoutX="304.0" layoutY="435.0" prefHeight="60.0" prefWidth="288.0" />
+      <JFXButton layoutX="396.0" layoutY="533.0" onAction="#send" prefHeight="25.0" prefWidth="62.0" text="Send" />
+      <JFXButton layoutX="63.0" layoutY="394.0" onAction="#displayUsers" text="Now Online" />
+   </children>
+</AnchorPane>
