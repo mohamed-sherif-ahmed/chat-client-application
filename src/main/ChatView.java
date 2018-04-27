@@ -1,80 +1,85 @@
 package main;
 
-
-
-import com.jfoenix.controls.JFXTextArea;
 import com.jfoenix.controls.JFXTextField;
+import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.Socket;
+import java.net.URL;
+import java.util.ResourceBundle;
 
-public class ChatView {
-    BufferedReader in;
-    BufferedWriter out;
-    @FXML
-    private JFXTextField serverIP;
+public class ChatView implements ControlledScreen, Initializable {
 
-    @FXML
-    private JFXTextField userConnect;
+    BufferedWriter chatOut;
+    BufferedReader chatIn;
+    ScreensController myController;
+    UpdateChatView chatService = new UpdateChatView();
 
     @FXML
-    private JFXTextArea screen;
+    private JFXTextField txtMessage;
 
     @FXML
-    private JFXTextArea type;
+    private VBox chatArea;
 
-    @FXML
-    private JFXTextArea userDisplay;
-
-    @FXML
-    void connect(ActionEvent event) {
-
-    }
-
-
-
-    @FXML
-    void login(ActionEvent event) {
-        try {
-            Socket socket = new Socket(serverIP.getText(), 50000);
-            ClientListener cl = new ClientListener();
-            cl.start();
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            String a = "Amr;" +socket.getLocalAddress().toString()+";"+socket.getLocalPort()+";"+cl.getServerSocket().getLocalPort();
-            out.write(a + "\n");
-            out.flush();
-            String s = "";
+    class UpdateChatView extends Service {
+        @Override
+        protected Task createTask() {
+            return new Task() {
+                @Override
+                protected Object call() throws Exception {
+                    while (true) {
+                        try {
+                            final String msg = chatIn.readLine();
+                            Platform.runLater(
+                                    () -> {
+                                        // Update UI here.
+                                        chatArea.getChildren().add(new Label(msg));
+                                    }
+                            );
+                        }catch (Exception e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            };
         }
-            catch (Exception e){
-                e.printStackTrace();
-            }
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
 
     }
 
+
     @FXML
-    void displayUsers(ActionEvent event) {
+    void sendMessage(ActionEvent event) {
         try{
-            out.write("info\n");
-            out.flush();
-            String s = in.readLine();
-            userDisplay.setText(s);
-            System.out.println(s);
-        }
-        catch (Exception e){
+            chatOut.write(txtMessage.getText() + "\n");
+            chatOut.flush();
+        }catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    @FXML
-    void send(ActionEvent event) {
-
+    public void setChatOut(BufferedWriter chatOut) {
+        this.chatOut = chatOut;
     }
 
+    public void setChatIn(BufferedReader chatIn) {
+        this.chatIn = chatIn;
+    }
+
+    @Override
+    public void setScreenParent(ScreensController screenPage) {
+        this.myController = screenPage;
+    }
 }
+
