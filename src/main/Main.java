@@ -1,56 +1,35 @@
 package main;
 
-import java.io.*;
-import java.net.Socket;
 import java.util.Scanner;
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
-public class Main {
+import static javafx.application.Application.launch;
+
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+
+public class Main extends Application{
     public static Scanner sc = new Scanner(System.in);
+    @Override
+    public void start(Stage primaryStage) throws Exception{
+
+
+        Parent root = FXMLLoader.load(getClass().getResource("/ChatView.fxml"));
+        Scene scene = new Scene(root);
+
+
+        primaryStage.setScene(scene);
+        primaryStage.resizableProperty().setValue(Boolean.FALSE);
+        primaryStage.show();
+    }
+
+
+
     public static void main(String[] args) {
-        try{
-            Socket socket = new Socket("192.168.1.2", 50000);
 
-//            OutputStream outputStream = socket.getOutputStream();
-//            DataOutputStream dataOutputStream = new DataOutputStream(outputStream);
-//
-//            dataOutputStream.writeInt(Integer.parseInt(args[0]));
+        launch(args);
 
-//            InputStream inputStream = socket.getInputStream();
-//            DataInputStream dataInputStream = new DataInputStream(inputStream);
-            ClientListener cl = new ClientListener();
-            cl.start();
-            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out.write(cl.getServerSocket().getLocalPort() + "\n");
-            out.flush();
-            String s = "";
-
-            while (true) {
-                int a = sc.nextInt();
-                if (a == 1) {
-                    out.write("info\n");
-                    out.flush();
-                    s = in.readLine();
-                    System.out.println(s);
-                } if (a == 2) {
-                    String[] users = s.split(";");
-
-                    int id = sc.nextInt();
-                    String[] data = users[id].split(",");
-                    System.out.println("Enter Message");
-                    String ss = "Hellowowowowo\n";
-//                    ss += "\n";
-                    System.out.println(data[1]);
-                    Socket tempS = new Socket("192.168.1.3", Integer.parseInt(data[1]));
-                    BufferedWriter tempOut = new BufferedWriter(new OutputStreamWriter(tempS.getOutputStream()));
-                    tempOut.write(ss);
-                    tempOut.flush();
-                    tempOut.close();
-                }
-            }
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
     }
 }
