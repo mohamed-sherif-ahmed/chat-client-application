@@ -5,7 +5,11 @@
 <?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="625.0" prefWidth="627.0" stylesheets="@/mainStyle.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ChatView">
+<?import java.net.URL?>
+<AnchorPane prefHeight="625.0" prefWidth="627.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ChatView">
+   <stylesheets>
+      <URL value="@mainStyle.css" />
+   </stylesheets>
    <children>
       <JFXTextField fx:id="serverIP" layoutX="48.0" layoutY="45.0" promptText="Sever IP" unFocusColor="#4d4444" />
       <JFXButton layoutX="48.0" layoutY="99.0" onAction="#login" text="Log In" />
