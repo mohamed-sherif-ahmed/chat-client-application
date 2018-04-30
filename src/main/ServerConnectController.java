@@ -21,6 +21,7 @@ public class ServerConnectController implements ControlledScreen{
 
     @FXML
     void connectServer(ActionEvent event) {
+        myScreen.clientName = txtNickname.getText();
         myScreen.initServerConnection(txtServerIP.getText(), txtNickname.getText());
         myScreen.loadScreen("Lobby","/Lobby.fxml");
         myScreen.setScreen("Lobby");

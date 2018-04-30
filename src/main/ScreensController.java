@@ -23,6 +23,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by mohamedsherif on 12/29/16.
@@ -43,6 +45,7 @@ public class ScreensController extends StackPane {
 
 
     ClientListener cl;
+    String clientName;
 
     class ClientMessageListener extends Service {
         @Override
@@ -58,6 +61,7 @@ public class ScreensController extends StackPane {
                         String initInbound = in.readLine();
                         FXMLLoader loadedChat = loadScreen(initInbound, "/ChatView.fxml");
                         ChatView loadedChatView = loadedChat.getController();
+                        loadedChatView.setChatName(initInbound);
                         loadedChatView.setChatIn(in);
                         loadedChatView.setChatOut(out);
                         loadedChatView.chatService.start();
@@ -74,7 +78,7 @@ public class ScreensController extends StackPane {
 
         public void updateUserList() {
             try {
-                server_out.write("info\n");
+                server_out.write("clients_online\n");
                 server_out.flush();
                 String s = server_in.readLine();
                 String[] users = s.split(";");
@@ -171,6 +175,19 @@ public class ScreensController extends StackPane {
             } else {
                 return true;
             }
+        }
+
+        public String getScreenName(Node screen){
+            Iterator it = screens.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+//                System.out.println(pair.getKey() + " = " + pair.getValue());
+//                it.remove(); // avoids a ConcurrentModificationException
+                if (pair.getValue().equals(screen)){
+                    return (String) pair.getKey();
+                }
+            }
+            return "";
         }
     }
 

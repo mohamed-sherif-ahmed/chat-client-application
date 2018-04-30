@@ -7,6 +7,7 @@ import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 
@@ -21,7 +22,8 @@ public class ChatView implements ControlledScreen, Initializable {
     BufferedReader chatIn;
     ScreensController myController;
     UpdateChatView chatService = new UpdateChatView();
-
+    String chatName;
+    String groupChatNumber = "-1";
     @FXML
     private JFXTextField txtMessage;
 
@@ -40,7 +42,7 @@ public class ChatView implements ControlledScreen, Initializable {
                             Platform.runLater(
                                     () -> {
                                         // Update UI here.
-                                        chatArea.getChildren().add(new Label(msg));
+                                        chatArea.getChildren().add(new ChatMessage(chatName, msg, true));
                                     }
                             );
                         }catch (Exception e){
@@ -54,15 +56,21 @@ public class ChatView implements ControlledScreen, Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
     }
 
 
     @FXML
     void sendMessage(ActionEvent event) {
         try{
-            chatOut.write(txtMessage.getText() + "\n");
-            chatOut.flush();
+            if(groupChatNumber.equals("-1")){
+                chatOut.write(txtMessage.getText() + "\n");
+                chatOut.flush();
+                chatArea.getChildren().add(new ChatMessage(myController.clientName, txtMessage.getText(), false));
+                txtMessage.setText("");
+            } else {
+                chatOut.write(groupChatNumber + ";" + txtMessage.getText() + "\n");
+                chatOut.flush();
+            }
         }catch (Exception e) {
             e.printStackTrace();
         }
@@ -80,6 +88,10 @@ public class ChatView implements ControlledScreen, Initializable {
     @Override
     public void setScreenParent(ScreensController screenPage) {
         this.myController = screenPage;
+    }
+
+    public void setChatName(String chatName) {
+        this.chatName = chatName;
     }
 }
 

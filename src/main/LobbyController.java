@@ -4,6 +4,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -29,6 +31,9 @@ public class LobbyController implements ControlledScreen, Initializable {
     @FXML
     private JFXTextField userIdSelection;
 
+    @FXML
+    private VBox groupsVBox;
+
     @Override
     public void setScreenParent(ScreensController screenPage) {
         this.myScreen = screenPage;
@@ -43,7 +48,7 @@ public class LobbyController implements ControlledScreen, Initializable {
                 protected Object call() throws Exception {
                     while (true) {
                         updateUserList();
-
+                        updateGroupList();
 
                         try {
                             Thread.sleep(5000);
@@ -65,7 +70,7 @@ public class LobbyController implements ControlledScreen, Initializable {
     public void updateUserList() {
         System.out.println("UPDATING...!");
         try {
-            myScreen.server_out.write("info\n");
+            myScreen.server_out.write("clients_online\n");
             myScreen.server_out.flush();
             String s = myScreen.server_in.readLine();
             String[] users = s.split(";");
@@ -79,14 +84,52 @@ public class LobbyController implements ControlledScreen, Initializable {
             for (String u :
                     users) {
                 String[] userData = u.split(",");
-                final String finalString = "Username : " + userData[0] + " ID : " + userData[1];
+                final String finalString = "Username : " + userData[1] + " ID : " + userData[0];
                 System.out.println(userData[2].substring(1));
 
                 myScreen.connectedUsers.add(new User(userData[0], userData[1], userData[2].substring(1), userData[3], userData[4]));
                 Platform.runLater(
                         () -> {
                             // Update UI here.
-                            usersVBox.getChildren().add(new Label(finalString));
+                            ChatSelectorButton csb = new ChatSelectorButton(finalString, Integer.parseInt(userData[0]), 'c');
+                            csb.setOnAction(generalButtonActionHandler());
+                            usersVBox.getChildren().add(csb);
+                        }
+                );
+            }
+//            userDisplay.setText(finalString);
+//            System.out.println(s);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateGroupList(){
+        try {
+            myScreen.server_out.write("group_available\n");
+            myScreen.server_out.flush();
+            String s = myScreen.server_in.readLine();
+            String[] groups = s.split(";");
+//            String finalString = "";
+            Platform.runLater(
+                    () -> {
+                        // Update UI here.
+                        groupsVBox.getChildren().clear();
+                    }
+            );
+            for (String u :
+                    groups) {
+                String[] groupData = u.split(",");
+                final String finalString = "Group ID : " + groupData[0] + " Group Name : " + groupData[1];
+
+                //myScreen.connectedUsers.add(new User(userData[0], userData[1], userData[2].substring(1), userData[3], userData[4]));
+                Platform.runLater(
+                        () -> {
+                            // Update UI here.
+                            ChatSelectorButton csb = new ChatSelectorButton(finalString, Integer.parseInt(groupData[0]), 'g');
+                            csb.setOnAction(generalButtonActionHandler());
+                            groupsVBox.getChildren().add(csb);
                         }
                 );
             }
@@ -105,12 +148,12 @@ public class LobbyController implements ControlledScreen, Initializable {
         updateUserListService.start();
     }
 
-    @FXML
-    void startChat(ActionEvent event) {
+
+    void startChat(String id) {
         User desiredUser = myScreen.connectedUsers.get(0);
         for (User u :
                 myScreen.connectedUsers) {
-            if(u.getId().equals(userIdSelection.getText())) {
+            if(u.getId().equals(id)) {
                 desiredUser = u;
                 break;
             }
@@ -119,17 +162,51 @@ public class LobbyController implements ControlledScreen, Initializable {
             myScreen.peer_socket = new Socket(desiredUser.getIp(),Integer.parseInt(desiredUser.getTx()));
             myScreen.peer_out =  new BufferedWriter(new OutputStreamWriter(myScreen.peer_socket.getOutputStream()));
             myScreen.peer_in =  new BufferedReader(new InputStreamReader(myScreen.peer_socket.getInputStream()));
-            myScreen.peer_out.write("CHAT A\n");
+            myScreen.peer_out.write(myScreen.clientName + "\n");
             myScreen.peer_out.flush();
-            FXMLLoader loadedChat = myScreen.loadScreen("A", "/ChatView.fxml");
+            FXMLLoader loadedChat = myScreen.loadScreen(myScreen.clientName, "/ChatView.fxml");
             ChatView loadedChatView = loadedChat.getController();
+            loadedChatView.setChatName(desiredUser.getName());
             loadedChatView.setChatIn(myScreen.peer_in);
             loadedChatView.setChatOut(myScreen.peer_out);
             loadedChatView.chatService.start();
-            myScreen.setScreen("A");
+            myScreen.setScreen(myScreen.clientName);
         } catch (Exception e){
             e.printStackTrace();
         }
     }
+
+    public void createGroupChat() {
+        try{
+            myScreen.server_out.write("group_create\n");
+            myScreen.server_out.flush();
+            myScreen.server_out.write("TEST !!!\n");
+            myScreen.server_out.flush();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
+    public EventHandler<ActionEvent> generalButtonActionHandler() {
+        return new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if(((ChatSelectorButton)event.getSource()).getType() == 'g'){
+
+                } else {
+                    startChat("" + ((ChatSelectorButton)event.getSource()).getModelId());
+                }
+            }
+        };
+    }
+
+//    public void generalButtonActionHandler(ActionEvent ae){
+//        if(((ChatSelectorButton)ae.getSource()).getType() == 'g'){
+//
+//        } else {
+//            startChat(null);
+//        }
+//    }
 
 }
