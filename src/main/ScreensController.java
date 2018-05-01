@@ -3,6 +3,7 @@ package main;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.DoubleProperty;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -12,6 +13,11 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 
@@ -29,9 +35,12 @@ import java.util.Map;
 /**
  * Created by mohamedsherif on 12/29/16.
  */
-public class ScreensController extends StackPane {
+public class ScreensController extends BorderPane {
     private HashMap<String, Node> screens = new HashMap<>();
-
+    private StackPane mainStackPane = new StackPane(new AnchorPane());
+    private MenuBar mainMenuBar = new MenuBar();
+    private Menu chatMenu = new Menu("Available Chats");
+    public Menu clientMenu;
     BufferedReader server_in;
     BufferedWriter server_out;
 
@@ -42,10 +51,22 @@ public class ScreensController extends StackPane {
     ServerSocket clientInSocket;
 
     ArrayList<User> connectedUsers = new ArrayList<>();
+    ArrayList<GroupChatClient> availableGroupChats = new ArrayList<>();
 
 
     ClientListener cl;
     String clientName;
+
+    public ScreensController() {
+//        mainMenuBar.prefWidthProperty().bind(widthProperty());
+        clientMenu = new Menu("Client");
+        MenuItem exitMenuItem = new MenuItem("Exit");
+        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
+        clientMenu.getItems().add(exitMenuItem);
+        mainMenuBar.getMenus().addAll(clientMenu, chatMenu);
+        setTop(mainMenuBar);
+        setCenter(mainStackPane);
+    }
 
     class ClientMessageListener extends Service {
         @Override
@@ -66,6 +87,7 @@ public class ScreensController extends StackPane {
                         loadedChatView.setChatOut(out);
                         loadedChatView.chatService.start();
                         setScreen(initInbound);
+                        addChatToMenu(initInbound);
                     }
                 }
             };
@@ -146,9 +168,9 @@ public class ScreensController extends StackPane {
                         @Override
                         public void handle(Event event) {
                             //remove displayed screen
-                            getChildren().remove(0);
+                            mainStackPane.getChildren().remove(0);
                             //add new screen
-                            getChildren().add(0, screens.get(name));
+                            mainStackPane.getChildren().add(0, screens.get(name));
                             Timeline fadeIn = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(opacity, 0.0)), new KeyFrame(new Duration(250), new KeyValue(opacity, 1.0)));
                             fadeIn.play();
                         }
@@ -156,8 +178,8 @@ public class ScreensController extends StackPane {
                     fade.play();
                 } else {
                     //no one else been displayed, then just show
-                    setOpacity(0.0);
-                    getChildren().add(screens.get(name));
+                    mainStackPane.setOpacity(0.0);
+                    mainStackPane.getChildren().add(screens.get(name));
                     Timeline fadeIn = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(opacity, 0.0)), new KeyFrame(new Duration(500), new KeyValue(opacity, 1.0)));
                     fadeIn.play();
                 }
@@ -188,6 +210,14 @@ public class ScreensController extends StackPane {
                 }
             }
             return "";
+        }
+
+        public void addChatToMenu(String screenName){
+            MenuItem chatItem = new MenuItem(screenName);
+            chatItem.setOnAction(actionEvent -> {
+                setScreen(((MenuItem)actionEvent.getSource()).getText());
+            });
+            chatMenu.getItems().add(chatItem);
         }
     }
 
