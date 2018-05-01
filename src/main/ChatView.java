@@ -68,6 +68,8 @@ public class ChatView implements ControlledScreen, Initializable {
                 chatArea.getChildren().add(new ChatMessage(myController.clientName, txtMessage.getText(), false));
                 txtMessage.setText("");
             } else {
+                chatOut.write("group_msg\n");
+                chatOut.flush();
                 chatOut.write(groupChatNumber + ";" + txtMessage.getText() + "\n");
                 chatOut.flush();
             }
