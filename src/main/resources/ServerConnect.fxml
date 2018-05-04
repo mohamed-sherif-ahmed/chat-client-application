@@ -7,25 +7,29 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ServerConnectController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" style="-fx-background-color: white;" xmlns="http://javafx.com/javafx/9" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.ServerConnectController">
    <children>
-      <JFXTextField fx:id="txtServerIP" labelFloat="true" layoutX="14.0" layoutY="149.0" prefHeight="51.0" prefWidth="407.0" promptText="Enter Server IP" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0">
+      <AnchorPane layoutX="1.0" prefHeight="26.0" prefWidth="1280.0" style="-fx-background-color: #29434e;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <JFXButton layoutX="1253.0" layoutY="3.0" text="X" textFill="WHITE" />
+         </children>
+      </AnchorPane>
+      <JFXTextField fx:id="txtServerIP" labelFloat="true" layoutX="15.0" layoutY="428.0" prefHeight="51.0" prefWidth="407.0" promptText="Enter Server IP" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="13.0">
          <font>
             <Font name="System Bold Italic" size="24.0" />
          </font>
       </JFXTextField>
-      <JFXButton layoutX="223.0" layoutY="298.0" onAction="#connectServer" prefHeight="51.0" prefWidth="154.0" text="Connect" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="223.0" AnchorPane.rightAnchor="223.0">
+      <JFXButton buttonType="RAISED" layoutX="223.0" layoutY="298.0" onAction="#connectServer" prefHeight="51.0" prefWidth="154.0" text="Connect" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="300.0" AnchorPane.rightAnchor="300.0">
          <font>
             <Font name="System Bold Italic" size="24.0" />
          </font>
       </JFXButton>
-      <JFXTextField fx:id="txtNickname" labelFloat="true" layoutX="14.0" layoutY="238.0" prefHeight="51.0" prefWidth="407.0" promptText="Enter Your Nickname" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0">
+      <JFXTextField fx:id="txtNickname" labelFloat="true" layoutX="14.0" layoutY="555.0" prefHeight="51.0" prefWidth="407.0" promptText="Enter Your Nickname" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0">
          <font>
             <Font name="System Bold Italic" size="24.0" />
          </font>
       </JFXTextField>
-      <ImageView fitHeight="133.0" fitWidth="133.0" layoutX="234.0" layoutY="14.0" AnchorPane.topAnchor="14.0">
+      <ImageView fitHeight="400.0" fitWidth="400.0" layoutX="441.0" layoutY="30.0" AnchorPane.topAnchor="30.0">
          <image>
             <Image url="@logo.png" />
          </image>

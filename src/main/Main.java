@@ -36,10 +36,10 @@ public class Main extends Application{
         mainScreen.setScreen("MainView");
         Group root = new Group();
         root.getChildren().addAll(mainScreen);
-        Scene scene = new Scene(root, 600, 450);
+        Scene scene = new Scene(root, 1280, 720);
 //        scene.setFill(new Color(0.247,0.318,0.71,1));
         primaryStage.setScene(scene);
-//        primaryStage.initStyle(StageStyle.UNDECORATED);
+        primaryStage.initStyle(StageStyle.UNDECORATED);
         primaryStage.show();
 //        mainStagePosX = primaryStage.getX();
 //        mainStagePosY = primaryStage.getY();

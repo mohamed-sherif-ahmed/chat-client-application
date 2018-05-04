@@ -22,14 +22,14 @@ public class ServerConnectController implements ControlledScreen{
 
     @FXML
     void connectServer(ActionEvent event) {
-        myScreen.clientName = txtNickname.getText();
+        ScreensController.clientName = txtNickname.getText();
         myScreen.initServerConnection(txtServerIP.getText(), txtNickname.getText());
         myScreen.loadScreen("Lobby","/Lobby.fxml");
-        MenuItem goToLobby = new MenuItem("Go To Lobby");
-        goToLobby.setOnAction(actionEvent -> {
-            myScreen.setScreen("Lobby");
-        });
-        myScreen.clientMenu.getItems().add(goToLobby);
+//        MenuItem goToLobby = new MenuItem("Go To Lobby");
+//        goToLobby.setOnAction(actionEvent -> {
+//            myScreen.setScreen("Lobby");
+//        });
+//        myScreen.clientMenu.getItems().add(goToLobby);
         myScreen.setScreen("Lobby");
     }
 

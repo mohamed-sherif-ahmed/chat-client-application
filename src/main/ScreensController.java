@@ -35,7 +35,7 @@ import java.util.Map;
 /**
  * Created by mohamedsherif on 12/29/16.
  */
-public class ScreensController extends BorderPane {
+public class ScreensController extends StackPane {
     private HashMap<String, Node> screens = new HashMap<>();
     private StackPane mainStackPane = new StackPane(new AnchorPane());
     private MenuBar mainMenuBar = new MenuBar();
@@ -55,68 +55,47 @@ public class ScreensController extends BorderPane {
 
 
     ClientListener cl;
-    String clientName;
+    static String clientName;
 
     public ScreensController() {
 //        mainMenuBar.prefWidthProperty().bind(widthProperty());
-        clientMenu = new Menu("Client");
-        MenuItem exitMenuItem = new MenuItem("Exit");
-        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
-        clientMenu.getItems().add(exitMenuItem);
-        mainMenuBar.getMenus().addAll(clientMenu, chatMenu);
-        setTop(mainMenuBar);
-        setCenter(mainStackPane);
+//        clientMenu = new Menu("Client");
+//        MenuItem exitMenuItem = new MenuItem("Exit");
+//        exitMenuItem.setOnAction(actionEvent -> Platform.exit());
+//        clientMenu.getItems().add(exitMenuItem);
+//        mainMenuBar.getMenus().addAll(clientMenu, chatMenu);
+//        setTop(mainMenuBar);
+//        setCenter(mainStackPane);
     }
 
-    class ClientMessageListener extends Service {
-        @Override
-        protected Task createTask() {
-            return new Task() {
-                @Override
-                protected Object call() throws Exception {
-
-                    while (true) {
-                        Socket sk = clientInSocket.accept();
-                        BufferedReader in = new BufferedReader(new InputStreamReader(sk.getInputStream()));
-                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sk.getOutputStream()));
-                        String initInbound = in.readLine();
-                        FXMLLoader loadedChat = loadScreen(initInbound, "/ChatView.fxml");
-                        ChatView loadedChatView = loadedChat.getController();
-                        loadedChatView.setChatName(initInbound);
-                        loadedChatView.setChatIn(in);
-                        loadedChatView.setChatOut(out);
-                        loadedChatView.chatService.start();
-                        setScreen(initInbound);
-                        addChatToMenu(initInbound);
-                    }
-                }
-            };
-        }
-    }
+//    class ClientMessageListener extends Service {
+//        @Override
+//        protected Task createTask() {
+//            return new Task() {
+//                @Override
+//                protected Object call() throws Exception {
+//
+//                    while (true) {
+//                        Socket sk = clientInSocket.accept();
+//                        BufferedReader in = new BufferedReader(new InputStreamReader(sk.getInputStream()));
+//                        BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sk.getOutputStream()));
+//                        String initInbound = in.readLine();
+//                        FXMLLoader loadedChat = loadScreen(initInbound, "/ChatView.fxml");
+//                        ChatView loadedChatView = loadedChat.getController();
+//                        loadedChatView.setChatName(initInbound);
+//                        loadedChatView.setChatIn(in);
+//                        loadedChatView.setChatOut(out);
+//                        loadedChatView.chatService.start();
+//                        setScreen(initInbound);
+////                        addChatToMenu(initInbound);
+//                    }
+//                }
+//            };
+//        }
+//    }
 
         public ArrayList<User> getConnectedUsers() {
             return connectedUsers;
-        }
-
-        public void updateUserList() {
-            try {
-                server_out.write("clients_online\n");
-                server_out.flush();
-                String s = server_in.readLine();
-                String[] users = s.split(";");
-                String finalString = "";
-                for (String u :
-                        users) {
-                    String[] userData = u.split(",");
-                    finalString += "Username : " + userData[0] + " ID : " + userData[1] + "\n";
-                    System.out.println(userData[2].substring(1));
-                    connectedUsers.add(new User(userData[0], userData[1], userData[2].substring(1), userData[3], userData[4]));
-                }
-//            userDisplay.setText(finalString);
-//            System.out.println(s);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         public void initServerConnection(String ip, String nickname) {
@@ -124,18 +103,16 @@ public class ScreensController extends BorderPane {
                 Socket socket = new Socket(ip, 50000);
 //                cl = new ClientListener();
 //                cl.start();
-                ClientMessageListener clientMessageListener = new ClientMessageListener();
                 clientInSocket = new ServerSocket(0);
                 server_in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 server_out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-                String a = nickname + ";" + socket.getLocalAddress().toString() + ";" + socket.getLocalPort() + ";" + clientInSocket.getLocalPort();
-                System.out.println(a);
+                String a = nickname + ";" + socket.getLocalAddress().toString() + ";" + socket.getLocalPort() + ";" + clientInSocket.getLocalPort()  + ";" + "Online";
                 server_out.write(a + "\n");
                 server_out.flush();
+                System.out.println(a);
                 String s = "";
-                clientMessageListener.start();
             } catch (Exception e) {
-
+                e.printStackTrace();
             }
         }
 
@@ -168,9 +145,9 @@ public class ScreensController extends BorderPane {
                         @Override
                         public void handle(Event event) {
                             //remove displayed screen
-                            mainStackPane.getChildren().remove(0);
+                            getChildren().remove(0);
                             //add new screen
-                            mainStackPane.getChildren().add(0, screens.get(name));
+                            getChildren().add(0, screens.get(name));
                             Timeline fadeIn = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(opacity, 0.0)), new KeyFrame(new Duration(250), new KeyValue(opacity, 1.0)));
                             fadeIn.play();
                         }
@@ -178,8 +155,8 @@ public class ScreensController extends BorderPane {
                     fade.play();
                 } else {
                     //no one else been displayed, then just show
-                    mainStackPane.setOpacity(0.0);
-                    mainStackPane.getChildren().add(screens.get(name));
+                    setOpacity(0.0);
+                    getChildren().add(screens.get(name));
                     Timeline fadeIn = new Timeline(new KeyFrame(Duration.ZERO, new KeyValue(opacity, 0.0)), new KeyFrame(new Duration(500), new KeyValue(opacity, 1.0)));
                     fadeIn.play();
                 }

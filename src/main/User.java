@@ -1,18 +1,22 @@
 package main;
 
+import java.util.StringTokenizer;
+
 public class User {
     private String id;
     private String name;
     private String ip;
     private String rx;
     private String tx;
+    private String status;
 
-    public User(String id, String name, String ip, String rx, String tx) {
+    public User(String id, String name, String ip, String rx, String tx, String status) {
         this.id = id;
         this.name = name;
         this.ip = ip;
         this.rx = rx;
         this.tx = tx;
+        this.status = status;
     }
 
     public String getId() {
