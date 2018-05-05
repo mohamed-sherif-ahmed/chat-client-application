@@ -24,13 +24,12 @@ public class ServerConnectController implements ControlledScreen{
     void connectServer(ActionEvent event) {
         ScreensController.clientName = txtNickname.getText();
         myScreen.initServerConnection(txtServerIP.getText(), txtNickname.getText());
-        myScreen.loadScreen("Lobby","/Lobby.fxml");
-//        MenuItem goToLobby = new MenuItem("Go To Lobby");
-//        goToLobby.setOnAction(actionEvent -> {
-//            myScreen.setScreen("Lobby");
-//        });
-//        myScreen.clientMenu.getItems().add(goToLobby);
-        myScreen.setScreen("Lobby");
+        if(txtNickname.getText().equals("admoon")){
+            myScreen.loadScreen("admoon", "/AdminScreeen.fxml");
+            myScreen.setScreen("admoon");
+        }else {
+            myScreen.loadScreen("Lobby","/Lobby.fxml");
+            myScreen.setScreen("Lobby");
+        }
     }
-
 }

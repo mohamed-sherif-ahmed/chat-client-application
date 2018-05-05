@@ -13,6 +13,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -43,7 +44,10 @@ public class LobbyController implements ControlledScreen, Initializable {
     private TabPane chatsTabPane;
 
     @FXML
-    private JFXComboBox<String> statusComboBox;
+    private ComboBox<String> statusComboBox;
+
+    @FXML
+    private Label txtUser;
 
     @Override
     public void setScreenParent(ScreensController screenPage) {
@@ -51,6 +55,7 @@ public class LobbyController implements ControlledScreen, Initializable {
     }
 
     private HashMap<String, ChatView> groupChatController = new HashMap<>();
+    private HashMap<String, ChatView> p2pChatController = new HashMap<>();
 
     class ClientMessageListener extends Service {
         @Override
@@ -60,7 +65,9 @@ public class LobbyController implements ControlledScreen, Initializable {
                 protected Object call() throws Exception {
 
                     while (true) {
+                        System.out.println("ACCEPTING CLIENT !");
                         Socket sk = myScreen.clientInSocket.accept();
+                        System.out.println("CLIENT ACCEPTED !");
                         BufferedReader in = new BufferedReader(new InputStreamReader(sk.getInputStream()));
                         BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sk.getOutputStream()));
                         String initInbound = in.readLine();
@@ -74,6 +81,17 @@ public class LobbyController implements ControlledScreen, Initializable {
 
 
                         System.out.println("Hereadasdsadasda");
+                        User uUS = null;
+                        for(User us: myScreen.connectedUsers){
+                            if(us.getName().equals(initInbound)){
+                                uUS = us;
+                            }
+                        }
+                        if(uUS != null){
+                            if(p2pChatController.containsKey(uUS.getId())){
+                                continue;
+                            }
+                        }
                         FXMLLoader myLoader = new FXMLLoader(getClass().getResource("/ChatView.fxml"));
                         Parent loadScreen = (Parent) myLoader.load();
                         ChatView loadedChatView = myLoader.getController();
@@ -81,6 +99,8 @@ public class LobbyController implements ControlledScreen, Initializable {
                         loadedChatView.setChatIn(in);
                         loadedChatView.setChatOut(out);
                         loadedChatView.chatService.start();
+                        loadedChatView.disableLeaveBtn();
+                        p2pChatController.put(uUS.getId(), loadedChatView);
                         Tab nChatTab = new Tab();
                         nChatTab.setContent(loadScreen);
                         nChatTab.setText(initInbound);
@@ -123,8 +143,26 @@ public class LobbyController implements ControlledScreen, Initializable {
                                     d.updateGroupChatMessage(grpMessage[1], grpMessage[2]);
                                 });
                             } else if ( operation.equals("kick")){
-                                myScreen.setScreen("MainView");
-                                myScreen.unloadScreen("Lobby");
+                                System.out.println("jnljnjndslknklslknslknvlknkkk");
+                                Platform.exit();
+                            } else if(operation.equals("group_leave")){
+                                String g_id = stringTokenizer.nextToken();
+                                groupChatController.get(g_id);
+                                GroupChatClient gxx = null;
+                                for(GroupChatClient gcc: myScreen.availableGroupChats){
+                                    if (gcc.getId() == Integer.parseInt(g_id)){
+                                        gxx = gcc;
+                                    }
+                                }
+                                myScreen.availableGroupChats.remove(gxx);
+                                Tab tt = null;
+                                for(Tab t: chatsTabPane.getTabs()){
+                                    if(t.getText().equals(gxx.getGroupName())){
+                                        tt = t;
+                                    }
+                                }
+                                chatsTabPane.getTabs().remove(tt);
+                                groupChatController.remove(g_id);
                             }
                         }catch (Exception e){
                             e.printStackTrace();
@@ -207,26 +245,29 @@ public class LobbyController implements ControlledScreen, Initializable {
         updateUserListService.start();
         ClientMessageListener cml = new ClientMessageListener();
         cml.start();
-        statusComboBox.getItems().add(0, "Online");
-        statusComboBox.getItems().add(1, "Busy");
-        statusComboBox.getItems().add(2, "Away");
-//        statusComboBox.getSelectionModel().select(0);
-        statusComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
-            @Override
-            public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-                try{
-                    if(oldValue.equals(newValue)){
-                        return;
+        txtUser.setText(ScreensController.clientName);
+        Platform.runLater(() -> {
+            statusComboBox.getItems().add(0, "Online");
+            statusComboBox.getItems().add(1, "Busy");
+            statusComboBox.getItems().add(2, "Away");
+            statusComboBox.getSelectionModel().select(0);
+            statusComboBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+                @Override
+                public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+                    try{
+                        if(oldValue.equals(newValue)){
+                            return;
+                        }
+                        myScreen.server_out.write("change_status\n");
+                        myScreen.server_out.flush();
+                        myScreen.server_out.write(newValue +"\n");
+                        myScreen.server_out.flush();
+                    }catch (Exception e){
+                        e.printStackTrace();
                     }
-                    myScreen.server_out.write("change_status\n");
-                    myScreen.server_out.flush();
-                    myScreen.server_out.write(newValue +"\n");
-                    myScreen.server_out.flush();
-                }catch (Exception e){
-                    e.printStackTrace();
-                }
 
-            }
+                }
+            });
         });
     }
 
@@ -241,6 +282,9 @@ public class LobbyController implements ControlledScreen, Initializable {
             }
         }
         try {
+            if (p2pChatController.containsKey("" + desiredUser.getId())){
+                return;
+            }
             myScreen.peer_socket = new Socket(desiredUser.getIp(),Integer.parseInt(desiredUser.getTx()));
             myScreen.peer_out =  new BufferedWriter(new OutputStreamWriter(myScreen.peer_socket.getOutputStream()));
             myScreen.peer_in =  new BufferedReader(new InputStreamReader(myScreen.peer_socket.getInputStream()));
@@ -253,7 +297,9 @@ public class LobbyController implements ControlledScreen, Initializable {
             loadedChatView.setChatName(desiredUser.getName());
             loadedChatView.setChatIn(myScreen.peer_in);
             loadedChatView.setChatOut(myScreen.peer_out);
+            loadedChatView.disableLeaveBtn();
             loadedChatView.chatService.start();
+            p2pChatController.put("" + desiredUser.getId(), loadedChatView);
             Tab nChatTab = new Tab();
             nChatTab.setContent(loadScreen);
             nChatTab.setText(desiredUser.getName());
@@ -275,6 +321,9 @@ public class LobbyController implements ControlledScreen, Initializable {
             }
         }
         try {
+            if (groupChatController.containsKey("" + desiredGroup.getId())) {
+                return;
+            }
             myScreen.server_out.write("group_join\n");
             myScreen.server_out.flush();
             myScreen.server_out.write(id + "\n");

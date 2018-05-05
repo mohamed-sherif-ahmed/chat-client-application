@@ -1,5 +1,6 @@
 package main;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
@@ -9,6 +10,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 
 import java.io.BufferedReader;
@@ -30,6 +32,9 @@ public class ChatView implements Initializable {
 
     @FXML
     private VBox chatArea;
+
+    @FXML
+    private JFXButton btnLeave;
 
     class UpdateChatView extends Service {
         @Override
@@ -53,7 +58,7 @@ public class ChatView implements Initializable {
                             Platform.runLater(
                                     () -> {
                                         // Update UI here.
-                                        chatArea.getChildren().add(new ChatMessage(chatName, finalMsg, true));
+                                        chatArea.getChildren().add(new ChatMessage(chatName, finalMsg, false));
                                     }
                             );
                         }catch (Exception e){
@@ -76,7 +81,7 @@ public class ChatView implements Initializable {
             if(groupChatNumber.equals("-1")){
                 chatOut.write("p2p_msg;" + txtMessage.getText() + "\n");
                 chatOut.flush();
-                chatArea.getChildren().add(new ChatMessage(ScreensController.clientName, txtMessage.getText(), false));
+                chatArea.getChildren().add(new ChatMessage(ScreensController.clientName, txtMessage.getText(), true));
                 txtMessage.setText("");
             } else {
                 chatOut.write("group_msg\n");
@@ -109,6 +114,22 @@ public class ChatView implements Initializable {
 
     public void setChatName(String chatName) {
         this.chatName = chatName;
+    }
+
+    public void disableLeaveBtn(){
+        btnLeave.setVisible(false);
+    }
+
+    public void leaveGroup() {
+        try{
+            chatOut.write("group_leave\n");
+            chatOut.flush();
+            chatOut.write(groupChatNumber + "\n");
+            chatOut.flush();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
     }
 }
 
